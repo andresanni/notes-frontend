@@ -77,9 +77,9 @@ function App() {
   const handleAddNote = (newNote) => {
     noteFormRef.current.toggleVisibility();
 
-    noteService
-      .create(newNote)
-      .then((addedNote) => setNotes(notes.concat(addedNote)));
+    noteService.create(newNote).then((addedNote) => {
+      setNotes(notes.concat(addedNote));
+    });
   };
 
   const toggleShowAll = () => {
@@ -104,7 +104,7 @@ function App() {
             </div>
           ) : (
             <div>
-              <Togglable buttonLabel="login">
+              <Togglable buttonLabel="log in">
                 <LoginForm onSubmit={handleLogin} />
               </Togglable>
             </div>

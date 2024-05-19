@@ -19,11 +19,13 @@ function NewNoteForm({ onSubmit }) {
   return (
     <form onSubmit={handleSubmit} className="newNoteForm">
       <input
+        data-testid="note"
         onChange={(event) => setInputValue(event.target.value)}
         value={inputValue}
         placeholder="write note content here"
       />
       <input
+        data-testid="important"
         type="checkbox"
         id="important"
         name="important"
@@ -32,7 +34,7 @@ function NewNoteForm({ onSubmit }) {
           setIsImportant(event.target.checked);
         }}
       />
-      <label htmlFor="important"> Make Important</label>
+      <label htmlFor="important"> Important</label>
       <br></br>
       <button type="submit">Add</button>
     </form>
