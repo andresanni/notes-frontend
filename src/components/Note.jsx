@@ -9,7 +9,12 @@ const Note = ({ note, toggleImportance }) => {
       <p>
         <strong>Important:</strong> {note.important.toString()}{' '}
       </p>
-      <button onClick={toggleImportance}>{label}</button>
+      <button
+        data-testid={`toggle-importance-${note.id}`}
+        onClick={toggleImportance}
+      >
+        {label}
+      </button>
     </li>
   );
 };
