@@ -1,130 +1,166 @@
-import { useState, useEffect, useRef } from 'react';
-import noteService from './services/notes';
-import loginService from './services/login';
-import NewNoteForm from './components/NewNoteForm';
-import LoginForm from './components/LoginForm';
-import Notification from './components/Notification';
-import NotesList from './components/NotesList';
-import Footer from './components/Footer';
-import Togglable from './components/Togglable';
+import { useState } from 'react';
 
-function App() {
-  const [notes, setNotes] = useState([]);
-  const [errorMessage, setErrorMessage] = useState();
-  const [showAll, setShowAll] = useState(true);
-  const [user, setUser] = useState(null);
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useParams,
+  useNavigate,
+} from 'react-router-dom';
 
-  const noteFormRef = useRef();
+const Home = () => (
+  <div>
+    <h2>TKTL notes app</h2>
+    <p>
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+      Lorem Ipsum has been the industry's standard dummy text ever since the
+      1500s, when an unknown printer took a galley of type and scrambled it to
+      make a type specimen book. It has survived not only five centuries, but
+      also the leap into electronic typesetting, remaining essentially
+      unchanged. It was popularised in the 1960s with the release of Letraset
+      sheets containing Lorem Ipsum passages, and more recently with desktop
+      publishing software like Aldus PageMaker including versions of Lorem
+      Ipsum.
+    </p>
+  </div>
+);
 
-  useEffect(() => {
-    noteService.getAll().then((notesList) => {
-      setNotes(notesList);
-    });
-  }, []);
+const Note = ({ notes }) => {
+  const id = useParams().id;
+  const note = notes.find((n) => n.id === Number(id));
+  return (
+    <div>
+      <h2>{note.content}</h2>
+      <div>{note.user}</div>
+      <div>
+        <strong>{note.important ? 'important' : ''}</strong>
+      </div>
+    </div>
+  );
+};
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser');
+const Notes = ({ notes }) => (
+  <div>
+    <h2>Notes</h2>
+    <ul>
+      {notes.map((note) => (
+        <li key={note.id}>
+          <Link to={`/notes/${note.id}`}>{note.content}</Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      noteService.setToken(user.token);
-    }
-  }, []);
+const Users = () => (
+  <div>
+    <h2>TKTL notes app</h2>
+    <ul>
+      <li>Matti Luukkainen</li>
+      <li>Juha Tauriainen</li>
+      <li>Arto Hellas</li>
+    </ul>
+  </div>
+);
 
-  const handleLogin = async (credentials) => {
-    const { username, password } = credentials;
-    try {
-      const user = await loginService.login({ username, password });
+const Login = (props) => {
+  const navigate = useNavigate();
 
-      window.localStorage.setItem('loggedNoteappUser', JSON.stringify(user));
-
-      noteService.setToken(user.token);
-      setUser(user);
-    } catch (exception) {
-      setErrorMessage('Wrong credentials');
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-    }
-  };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedNoteappUser');
-    setUser(null);
-    noteService.setToken(null);
-  };
-
-  const toggleImportanceOf = (id) => {
-    const note = notes.find((note) => note.id === id);
-    const changedNote = { ...note, important: !note.important };
-
-    noteService
-      .update(id, changedNote)
-      .then((updatedNote) => {
-        setNotes(notes.map((note) => (note.id !== id ? note : updatedNote)));
-      })
-      .catch((error) => {
-        setErrorMessage(`The note with id ${id} doesn´t exist in server`);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 5000);
-        setNotes(notes.filter((n) => n.id !== id));
-        console.log(error);
-      });
-  };
-
-  const handleAddNote = (newNote) => {
-    noteFormRef.current.toggleVisibility();
-
-    noteService.create(newNote).then((addedNote) => {
-      setNotes(notes.concat(addedNote));
-    });
-  };
-
-  const toggleShowAll = () => {
-    setShowAll(!showAll);
+  const onSubmit = (event) => {
+    event.preventDefault();
+    props.onLogin('mluukkai');
+    navigate('/');
   };
 
   return (
-    <div className="App">
-      <section>
-        <h1>Notes app</h1>
-        <Notification message={errorMessage} />
-
-        <section>
-          {user ? (
-            <div>
-              <p>{user.name} logged-in</p>
-              <button onClick={handleLogout}>logout</button>
-
-              <Togglable buttonLabel="new note" ref={noteFormRef}>
-                <NewNoteForm onSubmit={handleAddNote} />
-              </Togglable>
-            </div>
-          ) : (
-            <div>
-              <Togglable buttonLabel="log in">
-                <LoginForm onSubmit={handleLogin} />
-              </Togglable>
-            </div>
-          )}
-        </section>
-
-        <button onClick={toggleShowAll}>
-          Show {showAll ? 'Important' : 'All'}
-        </button>
-
-        <NotesList
-          notes={notes}
-          toggleImportanceOf={toggleImportanceOf}
-          showAll={showAll}
-        />
-      </section>
-
-      <Footer />
+    <div>
+      <h2>login</h2>
+      <form onSubmit={onSubmit}>
+        <div>
+          username: <input />
+        </div>
+        <div>
+          password: <input type="password" />
+        </div>
+        <button type="submit">login</button>
+      </form>
     </div>
   );
-}
+};
+
+const App = () => {
+  const [notes, setNotes] = useState([
+    {
+      id: 1,
+      content: 'HTML is easy',
+      important: true,
+      user: 'Matti Luukkainen',
+    },
+    {
+      id: 2,
+      content: 'Browser can execute only JavaScript',
+      important: false,
+      user: 'Matti Luukkainen',
+    },
+    {
+      id: 3,
+      content: 'Most important methods of HTTP-protocol are GET and POST',
+      important: true,
+      user: 'Arto Hellas',
+    },
+  ]);
+
+  const [user, setUser] = useState(null);
+
+  const login = (user) => {
+    setUser(user);
+  };
+
+  const padding = {
+    padding: 5,
+  };
+
+  return (
+    <div>
+      <Router>
+        <div>
+          <Link style={padding} to="/">
+            home
+          </Link>
+          <Link style={padding} to="/notes">
+            notes
+          </Link>
+          <Link style={padding} to="/users">
+            users
+          </Link>
+          {user ? (
+            <em>{user} logged in</em>
+          ) : (
+            <Link style={padding} to="/login">
+              login
+            </Link>
+          )}
+        </div>
+
+        <Routes>
+          <Route path="/notes/:id" element={<Note notes={notes} />} />
+          <Route path="/notes" element={<Notes notes={notes} />} />
+          <Route
+            path="/users"
+            element={user ? <Users /> : <Navigate replace to="/login" />}
+          />
+          <Route path="/login" element={<Login onLogin={login} />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </Router>
+      <div>
+        <br />
+        <em>Note app, Department of Computer Science 2023</em>
+      </div>
+    </div>
+  );
+};
 
 export default App;
