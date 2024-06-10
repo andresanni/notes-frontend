@@ -1,166 +1,119 @@
-import { useState } from 'react';
-
+import { useState, useEffect, useRef } from "react";
+import noteService from "./services/notes";
+import loginService from "./services/login";
+import NewNoteForm from "./components/NewNoteForm";
+import LoginForm from "./components/LoginForm";
+import Notification from "./components/Notification";
+import NotesList from "./components/NotesList";
+import Footer from "./components/Footer";
+import NavBar from "./components/NavBar";
+import Presentation from "./components/Presentation";
 import {
   BrowserRouter as Router,
-  Routes,
   Route,
-  Link,
+  Routes,
   Navigate,
-  useParams,
   useNavigate,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-const Home = () => (
-  <div>
-    <h2>TKTL notes app</h2>
-    <p>
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book. It has survived not only five centuries, but
-      also the leap into electronic typesetting, remaining essentially
-      unchanged. It was popularised in the 1960s with the release of Letraset
-      sheets containing Lorem Ipsum passages, and more recently with desktop
-      publishing software like Aldus PageMaker including versions of Lorem
-      Ipsum.
-    </p>
-  </div>
-);
-
-const Note = ({ notes }) => {
-  const id = useParams().id;
-  const note = notes.find((n) => n.id === Number(id));
-  return (
-    <div>
-      <h2>{note.content}</h2>
-      <div>{note.user}</div>
-      <div>
-        <strong>{note.important ? 'important' : ''}</strong>
-      </div>
-    </div>
-  );
-};
-
-const Notes = ({ notes }) => (
-  <div>
-    <h2>Notes</h2>
-    <ul>
-      {notes.map((note) => (
-        <li key={note.id}>
-          <Link to={`/notes/${note.id}`}>{note.content}</Link>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-const Users = () => (
-  <div>
-    <h2>TKTL notes app</h2>
-    <ul>
-      <li>Matti Luukkainen</li>
-      <li>Juha Tauriainen</li>
-      <li>Arto Hellas</li>
-    </ul>
-  </div>
-);
-
-const Login = (props) => {
-  const navigate = useNavigate();
-
-  const onSubmit = (event) => {
-    event.preventDefault();
-    props.onLogin('mluukkai');
-    navigate('/');
-  };
-
-  return (
-    <div>
-      <h2>login</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          username: <input />
-        </div>
-        <div>
-          password: <input type="password" />
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
-  );
-};
-
-const App = () => {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      content: 'HTML is easy',
-      important: true,
-      user: 'Matti Luukkainen',
-    },
-    {
-      id: 2,
-      content: 'Browser can execute only JavaScript',
-      important: false,
-      user: 'Matti Luukkainen',
-    },
-    {
-      id: 3,
-      content: 'Most important methods of HTTP-protocol are GET and POST',
-      important: true,
-      user: 'Arto Hellas',
-    },
-  ]);
+function App() {
+  const [notes, setNotes] = useState([]);
+  const [errorMessage, setErrorMessage] = useState();
 
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  const login = (user) => {
-    setUser(user);
+  useEffect(() => {
+    noteService.getAll().then((notesList) => {
+      setNotes(notesList);
+    });
+  }, []);
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
+
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      noteService.setToken(user.token);
+    }
+  }, []);
+
+  const handleLogin = async (credentials) => {
+    const { username, password } = credentials;
+
+    try {
+      const user = await loginService.login({ username, password });
+
+      window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
+
+      noteService.setToken(user.token);
+      setUser(user);
+      navigate("/");
+    } catch (exception) {
+      setErrorMessage("Wrong credentials");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+    }
   };
 
-  const padding = {
-    padding: 5,
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedNoteappUser");
+    setUser(null);
+    noteService.setToken(null);
+    navigate("/");
   };
+
+  const toggleImportanceOf = (id) => {
+    const note = notes.find((note) => note.id === id);
+    const changedNote = { ...note, important: !note.important };
+
+    noteService
+      .update(id, changedNote)
+      .then((updatedNote) => {
+        setNotes(notes.map((note) => (note.id !== id ? note : updatedNote)));
+      })
+      .catch((error) => {
+        setErrorMessage(`The note with id ${id} doesn´t exist in server`);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+        setNotes(notes.filter((n) => n.id !== id));
+        console.log(error);
+      });
+  };
+
+  const handleAddNote = (newNote) => {
+    noteService.create(newNote).then((addedNote) => {
+      setNotes(notes.concat(addedNote));
+      navigate("/notes");
+    });
+  };
+
 
   return (
-    <div>
-      <Router>
-        <div>
-          <Link style={padding} to="/">
-            home
-          </Link>
-          <Link style={padding} to="/notes">
-            notes
-          </Link>
-          <Link style={padding} to="/users">
-            users
-          </Link>
-          {user ? (
-            <em>{user} logged in</em>
-          ) : (
-            <Link style={padding} to="/login">
-              login
-            </Link>
-          )}
-        </div>
+    <div className="App">
+      <NavBar loggedUser={user} handleLogout={handleLogout} />
+      <Notification message={errorMessage} />
 
-        <Routes>
-          <Route path="/notes/:id" element={<Note notes={notes} />} />
-          <Route path="/notes" element={<Notes notes={notes} />} />
-          <Route
-            path="/users"
-            element={user ? <Users /> : <Navigate replace to="/login" />}
-          />
-          <Route path="/login" element={<Login onLogin={login} />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </Router>
-      <div>
-        <br />
-        <em>Note app, Department of Computer Science 2023</em>
-      </div>
+      <Routes>
+        <Route path="/" element={<Presentation />} />
+        <Route path="/login" element={<LoginForm onSubmit={handleLogin} />} />
+        <Route
+          path="/notes"
+          element={
+            <NotesList notes={notes} toggleImportanceOf={toggleImportanceOf} />
+          }
+        />
+        <Route
+          path="/create"
+          element={<NewNoteForm onSubmit={handleAddNote} />}
+        />
+      </Routes>
+      <Footer />
     </div>
   );
-};
+}
 
 export default App;

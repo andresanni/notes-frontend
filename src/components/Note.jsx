@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 
 const Note = ({ note, toggleImportance }) => {
   const label = note.important ? 'Make not important' : 'Make important';
-
   return (
     <li className="note">
       <p>{note.content}</p>
       <p>
         <strong>Important:</strong> {note.important.toString()}{' '}
       </p>
+      <p>Author: {note.user.username}</p>
       <button
         data-testid={`toggle-importance-${note.id}`}
         onClick={toggleImportance}

@@ -1,12 +1,19 @@
 import Note from './Note';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 
-const NotesList = ({ notes, toggleImportanceOf, showAll }) => {
+const NotesList = ({ notes, toggleImportanceOf}) => {
+  
+  const [showAll, setShowAll] = useState(true);
+  
   if (!showAll) {
     notes = notes.filter((note) => (note.important ? note : null));
   }
 
   return (
+    <div>
+      <button onClick={()=>setShowAll(!showAll)}>All</button>
+      <button onClick ={()=>setShowAll(!showAll)}>Only Important</button>
     <ul>
       {notes.map((note) => {
         return (
@@ -18,6 +25,7 @@ const NotesList = ({ notes, toggleImportanceOf, showAll }) => {
         );
       })}
     </ul>
+    </div>
   );
 };
 
