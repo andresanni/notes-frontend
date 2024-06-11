@@ -1,11 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutAction } from "../actions/userActions";
 
-const NavBar = ({ loggedUser, handleLogout }) => {
+const NavBar = () => {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate("/");
+
+  const handleLogout = () => {
+    dispatch(logoutAction());
+    navigate("/");
+  };
+
   return (
     <nav style={{ backgroundColor: "lightblue" }}>
       <h1>Notes app</h1>
       <ul>
-        {loggedUser ? (
+        {user.username ? (
           <li>
             <Link to="/create">Create</Link>
           </li>
@@ -21,9 +32,9 @@ const NavBar = ({ loggedUser, handleLogout }) => {
           <Link to="/">Home</Link>
         </li>
       </ul>
-      {loggedUser && (
+      {user.username && (
         <div>
-          {loggedUser.username} logged in
+          {user.username} logged in
           <button onClick={handleLogout}>logout</button>
         </div>
       )}

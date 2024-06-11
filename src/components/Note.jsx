@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { toggleImportanceOf } from '../reducers/notesReducer';
+import { toggleImportanceOf } from '../actions/noteActions';
 import { useDispatch } from 'react-redux';
 
 const Note = ({ note }) => {
@@ -34,7 +34,6 @@ Note.propTypes = {
       id: PropTypes.string,
     }).isRequired,
     id: PropTypes.string,
-  }),
-  toggleImportance: PropTypes.func,
+  })
 };
 export default Note;

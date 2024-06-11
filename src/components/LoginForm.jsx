@@ -1,16 +1,21 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginAction } from '../actions/userActions';
 
-function LoginForm({ onSubmit }) {
+function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const credentials = { username, password };
-    onSubmit(credentials);
+    dispatch(loginAction(credentials));
     setUsername('');
     setPassword('');
+    navigate("/")
   };
 
   return (
@@ -40,8 +45,6 @@ function LoginForm({ onSubmit }) {
   );
 }
 
-LoginForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
+
 
 export default LoginForm;

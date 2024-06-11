@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createNote } from '../reducers/notesReducer';
+import { createNote } from '../actions/noteActions';
 import { useNavigate } from 'react-router-dom';
 
 function NewNoteForm() {
