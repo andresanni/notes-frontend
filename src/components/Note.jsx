@@ -1,7 +1,12 @@
 import PropTypes from 'prop-types';
+import { toggleImportanceOf } from '../reducers/notesReducer';
+import { useDispatch } from 'react-redux';
 
-const Note = ({ note, toggleImportance }) => {
+const Note = ({ note }) => {
+
   const label = note.important ? 'Make not important' : 'Make important';
+  const dispatch = useDispatch();
+
   return (
     <li className="note">
       <p>{note.content}</p>
@@ -11,7 +16,7 @@ const Note = ({ note, toggleImportance }) => {
       <p>Author: {note.user.username}</p>
       <button
         data-testid={`toggle-importance-${note.id}`}
-        onClick={toggleImportance}
+        onClick={()=>dispatch(toggleImportanceOf(note.id))}
       >
         {label}
       </button>

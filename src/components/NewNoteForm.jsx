@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { createNote } from '../reducers/notesReducer';
+import { useNavigate } from 'react-router-dom';
 
-function NewNoteForm({ onSubmit }) {
+function NewNoteForm() {
   const [inputValue, setInputValue] = useState('');
   const [isImportant, setIsImportant] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -11,9 +15,10 @@ function NewNoteForm({ onSubmit }) {
       content: inputValue,
       important: isImportant,
     };
-    onSubmit(newNote);
+    dispatch(createNote(newNote));
     setInputValue('');
     setIsImportant(false);
+    navigate("/notes")
   };
 
   return (
@@ -41,6 +46,5 @@ function NewNoteForm({ onSubmit }) {
   );
 }
 
-NewNoteForm.propTypes = { onSubmit: PropTypes.func.isRequired };
 
 export default NewNoteForm;

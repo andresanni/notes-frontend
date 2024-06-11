@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import noteService from "./services/notes";
 import loginService from "./services/login";
 import NewNoteForm from "./components/NewNoteForm";
@@ -15,19 +15,19 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { initializeNotes } from "./reducers/notesReducer";
 
 function App() {
   const [notes, setNotes] = useState([]);
   const [errorMessage, setErrorMessage] = useState();
-
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    noteService.getAll().then((notesList) => {
-      setNotes(notesList);
-    });
-  }, []);
+    dispatch(initializeNotes());
+  }, [dispatch]);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
@@ -65,33 +65,6 @@ function App() {
     navigate("/");
   };
 
-  const toggleImportanceOf = (id) => {
-    const note = notes.find((note) => note.id === id);
-    const changedNote = { ...note, important: !note.important };
-
-    noteService
-      .update(id, changedNote)
-      .then((updatedNote) => {
-        setNotes(notes.map((note) => (note.id !== id ? note : updatedNote)));
-      })
-      .catch((error) => {
-        setErrorMessage(`The note with id ${id} doesn´t exist in server`);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 5000);
-        setNotes(notes.filter((n) => n.id !== id));
-        console.log(error);
-      });
-  };
-
-  const handleAddNote = (newNote) => {
-    noteService.create(newNote).then((addedNote) => {
-      setNotes(notes.concat(addedNote));
-      navigate("/notes");
-    });
-  };
-
-
   return (
     <div className="App">
       <NavBar loggedUser={user} handleLogout={handleLogout} />
@@ -103,12 +76,12 @@ function App() {
         <Route
           path="/notes"
           element={
-            <NotesList notes={notes} toggleImportanceOf={toggleImportanceOf} />
+            <NotesList/>
           }
         />
         <Route
           path="/create"
-          element={<NewNoteForm onSubmit={handleAddNote} />}
+          element={<NewNoteForm />}
         />
       </Routes>
       <Footer />

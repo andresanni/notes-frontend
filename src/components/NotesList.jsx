@@ -1,10 +1,13 @@
 import Note from './Note';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
-const NotesList = ({ notes, toggleImportanceOf}) => {
+
+const NotesList = () => {
   
   const [showAll, setShowAll] = useState(true);
+  let notes = useSelector((state)=>state.notes)
   
   if (!showAll) {
     notes = notes.filter((note) => (note.important ? note : null));
@@ -19,8 +22,7 @@ const NotesList = ({ notes, toggleImportanceOf}) => {
         return (
           <Note
             key={note.id}
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
+            note={note}            
           />
         );
       })}
