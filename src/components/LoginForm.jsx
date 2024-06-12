@@ -2,8 +2,14 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginAction } from '../actions/userActions';
+import { useContext } from 'react';
+import { NotificationContext } from '../context/NotificationContext';
+
 
 function LoginForm() {
+  
+  const {showNotification} = useContext(NotificationContext);
+  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
@@ -12,10 +18,10 @@ function LoginForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const credentials = { username, password };
-    dispatch(loginAction(credentials));
+    dispatch(loginAction(credentials, showNotification));
     setUsername('');
-    setPassword('');
-    navigate("/")
+    setPassword('');    
+    navigate("/");
   };
 
   return (

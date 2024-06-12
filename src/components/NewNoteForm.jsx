@@ -2,12 +2,18 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createNote } from '../actions/noteActions';
 import { useNavigate } from 'react-router-dom';
+import { NotificationContext } from '../context/NotificationContext';
+import { useContext } from 'react';
 
 function NewNoteForm() {
+  
   const [inputValue, setInputValue] = useState('');
   const [isImportant, setIsImportant] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {showNotification} = useContext(NotificationContext)
+
+  
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -15,7 +21,7 @@ function NewNoteForm() {
       content: inputValue,
       important: isImportant,
     };
-    dispatch(createNote(newNote));
+    dispatch(createNote(newNote, showNotification));
     setInputValue('');
     setIsImportant(false);
     navigate("/notes")

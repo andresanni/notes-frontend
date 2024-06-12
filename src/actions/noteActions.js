@@ -22,10 +22,11 @@ export const toggleImportanceOf = (id) => {
 };
 
 //TODO: MODIFICAR PROMESAS POR ASYNC AWAIT
-export const createNote = (newNote) => {
+export const createNote = (newNote, showNotification) => {
   return async (dispatch) => {
     noteService.create(newNote).then((addedNote) => {
       dispatch(appendNote(addedNote));
+      showNotification("Note created", "success")
     });
   };
 };

@@ -8,6 +8,7 @@ import {
 import noteService from "../services/notes";
 import loginService from "../services/login";
 
+
 const checkLogged = () => {
   return async (dispatch) => {
     const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
@@ -20,7 +21,7 @@ const checkLogged = () => {
   };
 };
 
-const loginAction = (credencials) => {
+const loginAction = (credencials, showNotification) => {
   return async (dispatch) => {
     dispatch(loginStart());
     const { username, password } = credencials;
@@ -29,21 +30,21 @@ const loginAction = (credencials) => {
       window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
       noteService.setToken(user.token);
       dispatch(loginSucces({ username: user.username, token: user.token }));
+      showNotification("User logged succesfully", "success");
     } catch (exception) {
       dispatch(loginFailure(exception.message));
-      //setErrorMessage("Wrong credentials");
-      //setTimeout(() => {
-      //setErrorMessage(null);
-      //}, 5000);
+      showNotification("bad credencials", "error");      
     }
   };
 };
 
-const logoutAction = () => {
+const logoutAction = (showNotification) => {
   return async (dispatch) => {
     window.localStorage.removeItem("loggedNoteappUser");
     noteService.setToken(null);
     dispatch(logout());
+    showNotification("BYE!!", "success");      
+
   };
 };
 

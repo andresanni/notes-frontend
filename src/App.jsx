@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import {  useEffect } from "react";
 import NewNoteForm from "./components/NewNoteForm";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
@@ -12,7 +12,6 @@ import { initializeNotes } from "./actions/noteActions";
 import { checkLogged } from "./actions/userActions";
 
 function App() {
-  const [errorMessage, setErrorMessage] = useState();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,7 +22,7 @@ function App() {
   return (
     <div className="App">
       <NavBar />
-      <Notification message={errorMessage} />
+      <Notification/>
 
       <Routes>
         <Route path="/" element={<Presentation />} />
@@ -31,6 +30,7 @@ function App() {
         <Route path="/notes" element={<NotesList />} />
         <Route path="/create" element={<NewNoteForm />} />
       </Routes>
+      
       <Footer />
     </div>
   );
