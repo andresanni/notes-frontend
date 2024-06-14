@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createNote } from '../actions/noteActions';
 import { useNavigate } from 'react-router-dom';
-import { NotificationContext } from '../context/NotificationContext';
-import { useContext } from 'react';
+import useNotification from '../hooks/useNotification';
 
 function NewNoteForm() {
   
@@ -11,8 +10,8 @@ function NewNoteForm() {
   const [isImportant, setIsImportant] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {showNotification} = useContext(NotificationContext)
-
+  
+  const {showNotification} = useNotification();
   
 
   const handleSubmit = (event) => {

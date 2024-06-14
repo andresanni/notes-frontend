@@ -1,14 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "../actions/userActions";
-import { NotificationContext } from "../context/NotificationContext";
-import { useContext } from "react";
+import useNotification from "../hooks/useNotification";
+import { AppBar, Toolbar } from "@mui/material";
 
 const NavBar = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate("/");
-  const {showNotification} = useContext(NotificationContext);
+  const {showNotification} = useNotification();
 
   const handleLogout = () => {
     dispatch(logoutAction(showNotification));
@@ -16,7 +16,8 @@ const NavBar = () => {
   };
 
   return (
-    <nav style={{ backgroundColor: "lightblue" }}>
+    <AppBar position="sticky" sx={{borderRadius:"5px"}}>
+    <Toolbar>
       <h1>Notes app</h1>
       <ul>
         {user.username ? (
@@ -41,7 +42,10 @@ const NavBar = () => {
           <button onClick={handleLogout}>logout</button>
         </div>
       )}
-    </nav>
+    </Toolbar>
+    </AppBar>
+    
+    
   );
 };
 

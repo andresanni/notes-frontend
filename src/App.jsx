@@ -6,10 +6,12 @@ import NotesList from "./components/NotesList";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 import Presentation from "./components/Presentation";
+import MuiNavbar from "./components/MuiNavbar"; 
 import { Route, Routes } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { initializeNotes } from "./actions/noteActions";
 import { checkLogged } from "./actions/userActions";
+import { Container } from "@mui/material";
 
 function App() {
   const dispatch = useDispatch();
@@ -20,8 +22,9 @@ function App() {
   }, [dispatch]);
 
   return (
-    <div className="App">
-      <NavBar />
+    <Container sx={{maxWidth: '1600px !important'}}>
+      
+      <MuiNavbar />
       <Notification/>
 
       <Routes>
@@ -32,7 +35,7 @@ function App() {
       </Routes>
       
       <Footer />
-    </div>
+    </Container>
   );
 }
 

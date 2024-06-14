@@ -1,56 +1,57 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { loginAction } from '../actions/userActions';
-import { useContext } from 'react';
-import { NotificationContext } from '../context/NotificationContext';
-
+import useField from "../hooks/useField";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { loginAction } from "../actions/userActions";
+import useNotification from "../hooks/useNotification";
+import { Button, Container, TextField } from "@mui/material";
 
 function LoginForm() {
-  
-  const {showNotification} = useContext(NotificationContext);
-  
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const { showNotification } = useNotification();
+  const userField = useField("text");
+  const passwordField = useField("password");
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const credentials = { username, password };
+    const credentials = {
+      username: userField.value,
+      password: passwordField.value,
+    };
     dispatch(loginAction(credentials, showNotification));
-    setUsername('');
-    setPassword('');    
+    userField.reset();
+    passwordField.reset();
     navigate("/");
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        username
-        <input
-          data-testid="username"
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          data-testid="password"
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
+    <Container maxWidth="md"
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      height: '50vh',
+      padding:'30px',
+      justifyContent:'center'
+      
+    }}>
+    <form onSubmit={handleSubmit} style={{
+      display:"flex",
+      flexDirection:"column",
+      gap:"16px",
+      justifyContent:"center"
+
+    }}> 
+      <TextField label="Username" {...userField} reset={undefined}  size="small"/>
+      <TextField label="Password" {...passwordField} reset={undefined} size="small"/>
+      <Button type="submit" variant="contained">
+        login
+      </Button>
     </form>
+    </Container>
   );
 }
-
-
 
 export default LoginForm;

@@ -8,25 +8,21 @@ export const initializeNotes = () => {
   };
 };
 
-//TODO: MODIFICAR PROMESAS POR ASYNC AWAIT
 export const toggleImportanceOf = (id) => {
   return async (dispatch, getState) => {
     const note = getState().notes.find((note) => note.id === id);
     if (note) {
       const changedNote = { ...note, important: !note.important };
-      noteService.update(id, changedNote).then((updatedNote) => {
-        dispatch(updateNote(updatedNote));
-      });
+      const updatedNote = await noteService.update(id, changedNote);
+      dispatch(updateNote(updatedNote));
     }
   };
 };
 
-//TODO: MODIFICAR PROMESAS POR ASYNC AWAIT
 export const createNote = (newNote, showNotification) => {
   return async (dispatch) => {
-    noteService.create(newNote).then((addedNote) => {
-      dispatch(appendNote(addedNote));
-      showNotification("Note created", "success")
-    });
+    const addedNote = await noteService.create(newNote);
+    dispatch(appendNote(addedNote));
+    showNotification("Note created", "success");
   };
 };
